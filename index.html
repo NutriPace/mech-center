@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Dashboard | Emcar Sport</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
@@ -111,7 +111,7 @@
                 <p class="text-[9px] text-slate-400 font-black tracking-widest not-italic mb-3">FORMULAIRE CLIENT</p>
                 <p class="text-xl font-black italic text-[#004a99] mb-4 leading-none">QR CODE RDV</p>
                 <div class="bg-white p-3 rounded-2xl shadow-inner mb-3">
-                    <canvas id="qrCanvas"></canvas>
+                    <div id="qrContainer"></div>
                 </div>
                 <p class="text-[8px] text-slate-400 not-italic normal-case text-center leading-relaxed mb-3">Scannez pour accéder au formulaire de prise de RDV</p>
                 <div class="flex gap-2 w-full">
@@ -155,19 +155,26 @@
         function logout() { localStorage.clear(); location.reload(); }
 
         // ---- QR CODE ----
+        var qrInstance = null;
         function generateQR() {
-            QRCode.toCanvas(document.getElementById('qrCanvas'), RDV_FORM_URL, {
-                width: 140,
-                margin: 1,
-                color: { dark: '#0a0f18', light: '#ffffff' }
-            }, function(err) { if (err) console.error(err); });
+            var el = document.getElementById('qrContainer');
+            el.innerHTML = '';
+            qrInstance = new QRCode(el, {
+                text:          RDV_FORM_URL,
+                width:         140,
+                height:        140,
+                colorDark:     '#0a0f18',
+                colorLight:    '#ffffff',
+                correctLevel:  QRCode.CorrectLevel.H
+            });
         }
 
         function downloadQR() {
-            const canvas = document.getElementById('qrCanvas');
-            const link   = document.createElement('a');
+            var img = document.querySelector('#qrContainer img');
+            if (!img) { alert('QR Code non disponible'); return; }
+            var link   = document.createElement('a');
             link.download = 'emcar-rdv-qrcode.png';
-            link.href     = canvas.toDataURL('image/png');
+            link.href     = img.src;
             link.click();
         }
 
